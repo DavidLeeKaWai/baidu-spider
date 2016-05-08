@@ -6,13 +6,15 @@ import datetime
 import platform
 import os
 
-
-def serch(keyword):
-    searching_url = 'http://image.baidu.com/search/index?tn=baiduimage&ie=utf-8&word=' + keyword
-    searching_url = Encoding.UTF8.GetString(Encoding.GetEncoding("gb2312").GetBytes(searching_url))
-    print searching_url
-    return searching_url
-
+def get_indexurl(keyword):
+    searching_url = 'http://image.baidu.com/search/index?tn=baiduimage&ipn=r&ct=201326592&cl=2&lm=-1&st=-1&fm=index&fr=&sf=1&fmq=&pv=&ic=0&nc=1&z=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&ie=utf-8&rsp=1&word=keywords&oq=keyoq'
+    searching_url = searching_url.replace('keywords',keyword)
+    searching_url = searching_url.replace('keyoq',keyword)
+    url = repr(searching_url)
+    url = url[1:len(url)]
+    url = url.replace('\\x','%')
+    print url
+    return url
 
 def get_imgURL(URL):
     xpath = '//div[@id="imgid"]/div/ul/li'
@@ -22,6 +24,7 @@ def get_imgURL(URL):
         driver = webdriver.PhantomJS()
         driver.set_window_size(160000000, 90000000, windowHandle='current')
         driver.get(URL)
+
     except:
         print "Can't open the driver, please try again later!"
         os._exit(1)
@@ -60,12 +63,11 @@ def get_imgURL(URL):
     print 'done!'
     driver.close()
 
-
 def save_imge(keyword):
     timeout = 60
     f = open('img_url', 'r')
     m = 0
-    BASE_DIR = os.path.dirname(__file__) 
+    BASE_DIR = os.path.dirname(__file__)
     os.mkdir(os.path.join(BASE_DIR, keyword))
     os.chdir(os.path.join(BASE_DIR, keyword))
     for line in f:
@@ -81,17 +83,9 @@ def save_imge(keyword):
         if m % 100 == 0:
             time.sleep(4)
 
-
 if __name__ == '__main__':
-    if platform.system() == 'Windows':
-        cls_cmd = 'cls'
-    else:
-        if platform.system() == 'Linux':
-            cls_cmd = 'clear'
-    k = os.system(cls_cmd)
     keyword = raw_input('Please input key word:')
-    get_imgURL(serch(keyword))
+    get_imgURL(get_indexurl(keyword))
     cmd = raw_input('Do you want to save the image?(Y/N)')
     if cmd == 'Y':
         save_imge(keyword)
-
